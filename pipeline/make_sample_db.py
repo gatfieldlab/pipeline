@@ -28,15 +28,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 
-for line in sys.stdin:
-    filename = line.strip()
-    base, ext = filename.split('.', 1)
-    try:
-        sample, run_id, lane_id, file_id = base.rsplit('_', 3)
-    except ValueError:
-        sys.stderr.write('Failed parsing: {}\n'.format(base))
-        continue
-    annot = sample.split('_')
-    sample_run_id = '_'.join([sample, run_id, lane_id])
-    sys.stdout.write('\t'.join([run_id, lane_id, file_id,
-                                sample_run_id, base, filename] + annot) + '\n')
+def main():
+    for line in sys.stdin:
+        filename = line.strip()
+        base, ext = filename.split('.', 1)
+        try:
+            sample, run_id, lane_id, file_id = base.rsplit('_', 3)
+        except ValueError:
+            sys.stderr.write('Failed parsing: {}\n'.format(base))
+            continue
+        annot = sample.split('_')
+        sample_run_id = '_'.join([sample, run_id, lane_id])
+        sys.stdout.write('\t'.join([run_id, lane_id, file_id,
+                                    sample_run_id, base, filename] + annot) + '\n')
