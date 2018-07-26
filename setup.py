@@ -5,32 +5,27 @@ Pip setup for process_reads package
 """
 
 import os
+from subprocess import check_call
 from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
-from distutils.command.build_py import build_py
-from subprocess import check_call
 
 
 class PostDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
+        config_script = os.path.join(self.script_dir, "pipeline_conf-riboprof.sh")
         develop.run(self)
-        check_call(["echo", "'{}'".format(self.install_dir), ">test.txt"])
+        check_call(["cp", config_script, "."])
 
-class BuildConfiguresScriptDir(build_py):
-    def run(self):
-        build_py.run(self)
-        if self.dry_run:
-            return
-        target = os.path.join(self.build_lib, 'scripts', 'pipeline_conf-riboprof.sh')
-        check_call(["echo", "'{}'".format(target), ">test.txt"])
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
-        check_call(["touch", "SomeNewFile"])
+        config_script = os.path.join(self.script_dir, "pipeline_conf-riboprof.sh")
         install.run(self)
+        check_call(["cp", config_script, "."])
+
 
 setup(
     name='pipeline',
@@ -44,7 +39,8 @@ setup(
     scripts=['scripts/meta_pipeline.sh',
              'scripts/pipeline_bwt2_single.sh',
              'scripts/pipeline_common.sh',
-             'scripts/subpipeline.sh'],
+             'scripts/subpipeline.sh',
+             'scripts/pipeline_conf-riboprof.sh'],
     entry_points={
         'console_scripts': ['make_sample_db = pipeline.make_sample_db:main',
                             'concat_map_logs = pipeline.concat_map_logs:main']},
@@ -52,8 +48,6 @@ setup(
     dependency_links=[],
     cmdclass={
         'develop': PostDevelopCommand,
-        'install': PostInstallCommand,
-        'build_py': BuildConfiguresScriptDir
-    },
+        'install': PostInstallCommand},
     zip_safe=False
 )
