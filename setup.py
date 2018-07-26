@@ -16,6 +16,7 @@ class PostDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
         develop.run(self)
+        check_call(["echo", "'{}'".format(self.install_dir), ">test.txt"])
 
 class BuildConfiguresScriptDir(build_py):
     def run(self):
