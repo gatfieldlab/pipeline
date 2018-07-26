@@ -10,6 +10,7 @@ from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
+CURDIR = os.getcwd()
 
 class PostDevelopCommand(develop):
     """Post-installation for development mode."""
@@ -24,7 +25,7 @@ class PostInstallCommand(install):
     def run(self):
         config_script = os.path.join(self.self.install_scripts, "pipeline_conf-riboprof.sh")
         install.run(self)
-        check_call(["cp", config_script, "."])
+        check_call(["cp", config_script, CURDIR])
         check_call(["touch", "it_works"])
 
 
