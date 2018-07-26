@@ -10,14 +10,15 @@ from setuptools import setup, find_packages
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 
-CURDIR = os.getcwd()
+CURDIR = os.getcwd() # this gets the src directory of python package
+USERDIR = os.path.expanduser("~")
 
 class PostDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
         config_script = os.path.join(self.script_dir, "pipeline_conf-riboprof.sh")
         develop.run(self)
-        check_call(["cp", config_script, CURDIR])
+        check_call(["cp", config_script, USERDIR])
         check_call(["touch", "develop"])
 
 
