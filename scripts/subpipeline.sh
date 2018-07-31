@@ -63,7 +63,7 @@ else
   while IFS= read -r file; do
       i=$(( $i+1 ))
       FILEARRAY=$(printf "$FILEARRAY\n${file:0:${#file}-${#raw_ext}}")
-  done < <(grep -oE "${BASE}\S+${raw_ext}" $SAMPLEDB)
+  done < <(grep -oE "${BASE}\S*${raw_ext}" $SAMPLEDB)
   if (( $i < 1 )); then
     logs ${SUB} $ERROR"<${BASE}> Could not find any files; terminating"
     errorlog["Have files"]="[ $(timestamp) ] ERROR - None found"
