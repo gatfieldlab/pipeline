@@ -59,6 +59,7 @@ if [ "${SAMPLEDB}" == "skip" ]; then
 else
   i=0
   raw_ext=${FILE_EXT["raw"]}
+  logs ${SUB} "<${BASE}> Searching for files, using '${raw_ext}' in '${SAMPLEDB}'"
   while IFS= read -r file; do
       i=$(( $i+1 ))
       FILEARRAY=$(printf "$FILEARRAY\n${file:0:${#file}-${#raw_ext}}")
