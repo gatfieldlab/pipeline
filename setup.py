@@ -47,7 +47,8 @@ setup(
              'scripts/pipeline_conf-riboprof.sh'],
     entry_points={
         'console_scripts': ['make_sample_db = pipeline.make_sample_db:main',
-                            'concat_map_logs = pipeline.concat_map_logs:main']},
+                            'concat_map_logs = pipeline.concat_map_logs:main',
+                            'consume = pipeline.consume:main']},
     install_requires=[],
     dependency_links=[],
     cmdclass={
