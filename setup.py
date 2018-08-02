@@ -49,7 +49,7 @@ setup(
         'console_scripts': ['make_sample_db = pipeline.make_sample_db:main',
                             'concat_map_logs = pipeline.concat_map_logs:main',
                             'consume = pipeline.consume:main']},
-    install_requires=[],
+    install_requires=['cutadapt'],
     dependency_links=[],
     cmdclass={
         'develop': PostDevelopCommand,
