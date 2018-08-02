@@ -37,7 +37,7 @@ def main():
     else:
         outfile = sys.stdout
 
-    for identifier, seq, sep, qual in itertools.izip_longest(*[sys.stdin]*4):
+    for identifier, seq, sep, qual in itertools.zip_longest(*[sys.stdin]*4):
         total_count += 1
         if len(seq) < eff_min_seq_len or len(seq) > eff_max_seq_len:
             filtered_count += 1
