@@ -138,6 +138,8 @@ def main():
         kept_file = open(args.file_kept, 'w')
         if args.verbose:
             sys.stderr.write('Opened {} for keeping filtered alignments\n'.format(args.file_kept))
+    else:
+        kept_file = None
     rrna_sizes = {}
     if args.command == 'rrna':
         if not args.size_file:
