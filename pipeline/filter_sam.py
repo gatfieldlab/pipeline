@@ -156,7 +156,7 @@ def main():
         cur_reads = None
         while True:
             try:
-                line = samfiles.next()
+                line = next(samfiles)
             except StopIteration:
                 if args.command == 'filter' and cur_reads:
                     sys.stdout.write(cur_reads['lines'])
