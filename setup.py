@@ -48,9 +48,10 @@ setup(
     entry_points={
         'console_scripts': ['make_sample_db = pipeline.make_sample_db:main',
                             'concat_map_logs = pipeline.concat_map_logs:main',
-                            'consume = pipeline.consume:main']},
+                            'consume = pipeline.consume:main',
+                            'filter_sam = pipeline.filter_sam:main']},
     install_requires=['cutadapt'],
-    dependency_links=[],
+    dependency_links=['http://github.com/gatfieldlab/pypackages#egg=accessories&subdirectory=accessories'],
     cmdclass={
         'develop': PostDevelopCommand,
         'install': PostInstallCommand},
