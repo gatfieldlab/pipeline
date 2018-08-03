@@ -19,7 +19,6 @@ class PostDevelopCommand(develop):
         config_script = os.path.join(self.script_dir, "pipeline_conf-riboprof.sh")
         develop.run(self)
         check_call(["cp", config_script, USERDIR])
-        check_call(["touch", "develop"])
 
 
 class PostInstallCommand(install):
@@ -28,7 +27,6 @@ class PostInstallCommand(install):
         config_script = os.path.join(self.self.install_scripts, "pipeline_conf-riboprof.sh")
         install.run(self)
         check_call(["cp", config_script, CURDIR])
-        check_call(["touch", "install"])
 
 
 setup(

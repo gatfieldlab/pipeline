@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7425fdb2e876935232ad8d20050303477f59c2d32e71cac4db6401fb8c55d455"
+            "sha256": "ae65e27f6023d37d1feb66c0052b838d4fba7d0aac986fe5624b2e0a8fc17b43"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,18 @@
         ]
     },
     "default": {
+        "accessories": {
+            "editable": true,
+            "git": "https://github.com/gatfieldlab/pypackages",
+            "subdirectory": "accessories"
+        },
+        "colour": {
+            "hashes": [
+                "sha256:33f6db9d564fadc16e59921a56999b79571160ce09916303d35346dddc17978c",
+                "sha256:af20120fefd2afede8b001fbef2ea9da70ad7d49fafdb6489025dae8745c3aee"
+            ],
+            "version": "==0.1.5"
+        },
         "cutadapt": {
             "hashes": [
                 "sha256:2bdf85090afe19b3f14a9ea154a1e9f55cc2667dbb92670a244440a7d4056903",
@@ -39,9 +51,30 @@
         }
     },
     "develop": {
+        "cutadapt": {
+            "hashes": [
+                "sha256:2bdf85090afe19b3f14a9ea154a1e9f55cc2667dbb92670a244440a7d4056903",
+                "sha256:339e37c790c559ff42f6349ebb10bc4523c81f4bf4b9655156191140c07a3a9e",
+                "sha256:58712b84e2fcd411425bb5d6fda4df1c372d236619bdbd98198a4b829332d589",
+                "sha256:9432045dcf59802ef9bb2d1f7232e8a015eb9b984e7c7ff35a6c8a57681e7a79",
+                "sha256:bc55341181ae07029f3c8a2038fa5ea2a91a6f0de8600a80f253675ea1a287c9",
+                "sha256:e5f461809da7f24645cdf0c562da53dfe4dfa52b4e96493d71b623e9054c4da0",
+                "sha256:fccbbc87d09446713169c3df61ea55df3bf2dca84fc5463ad23241a7f155cf53"
+            ],
+            "index": "pypi",
+            "version": "==1.16"
+        },
         "e1839a8": {
             "editable": true,
             "path": "."
+        },
+        "xopen": {
+            "hashes": [
+                "sha256:3a418d5d3eacc6645d8f002635308651bb6e47b9cabb19ae3abad600aa117ce3",
+                "sha256:ac8b6c8cc16e8e721153caf1215b09764a65e7fb99f93c58a423a8ae59faf61a",
+                "sha256:cf9e004a462419e329bc1df113c91d1a63e2a354b99b6285d11b40b03b911ff0"
+            ],
+            "version": "==0.3.5"
         }
     }
 }
