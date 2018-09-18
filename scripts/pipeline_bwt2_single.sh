@@ -259,7 +259,10 @@ for maptype in "${MAPTYPE[@]}"; do
     fi
   fi
   # get map specific bowtie2 params
-  if [ ${BOWTIE_PARAMS[$maptype]+isset} ]; then
+  read_maptype="${TY}_${maptype}"
+  if [ ${BOWTIE_PARAMS[$read_maptype]+isset} ]; then
+    cur_bowtie="${read_maptype}"
+  else [ ${BOWTIE_PARAMS[$maptype]+isset} ]; then
     cur_bowtie="${maptype}"
   else
     cur_bowtie="default"

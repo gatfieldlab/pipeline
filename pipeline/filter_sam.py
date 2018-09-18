@@ -3,6 +3,10 @@
 
 """
 Filters SAM output
+
+TODO: This script needs refactoring
+It is basically the same 2013 version just fixed for py3 syntax and wrapped in
+main() for packaging
 """
 
 import sys
