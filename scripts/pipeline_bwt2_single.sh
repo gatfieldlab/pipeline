@@ -262,7 +262,9 @@ for maptype in "${MAPTYPE[@]}"; do
   read_maptype="${TY}_${maptype}"
   if [ ${BOWTIE_PARAMS[$read_maptype]+isset} ]; then
     cur_bowtie="${read_maptype}"
-  else [ ${BOWTIE_PARAMS[$maptype]+isset} ]; then
+  elif [ ${BOWTIE_PARAMS[$TY]+isset} ]; then
+    cur_bowtie=${TY} 
+  elif [ ${BOWTIE_PARAMS[$maptype]+isset} ]; then
     cur_bowtie="${maptype}"
   else
     cur_bowtie="default"
