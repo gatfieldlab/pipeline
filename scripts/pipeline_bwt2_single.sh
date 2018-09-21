@@ -274,12 +274,14 @@ for maptype in "${MAPTYPE[@]}"; do
     if [ "${KEEPUNSORTED[${maptype}]}" = "yes" ]; then
       cur_sortsam="samtools view -Shu -t ${cur_faidx} - |\
  tee >( samtools view -b - > ${cur_bam}.bam ) |\
- samtools sort -@ 2 -m 16G -O bam -T ${cur_bam} -\
- 2> >( pipelogs "[samtools-sort]" ) > ${cur_bam}.sorted.bam"
+ ( samtools sort -@ 2 -m 16G -O bam -T ${cur_bam} -\
+ 2> >( pipelogs "[samtools-sort]" ) > ${cur_bam}.sorted.bam; \
+ samtools index ${cur_bam}.sorted.bam )"
     else
       cur_sortsam="samtools view -Shu -t ${cur_faidx} - |\
- samtools sort -@ 2 -m 16G -O bam -T ${cur_bam} -\
- 2> >( pipelogs "[samtools-sort]" ) > ${cur_bam}.sorted.bam"
+ ( samtools sort -@ 2 -m 16G -O bam -T ${cur_bam} -\
+ 2> >( pipelogs "[samtools-sort]" ) > ${cur_bam}.sorted.bam; \
+ samtools index ${cur_bam}.sorted.bam )"
     fi
   else
     cur_sortsam="samtools view -Sb -t ${cur_faidx} -\
