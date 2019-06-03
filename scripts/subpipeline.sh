@@ -53,6 +53,10 @@ log_and_exit() {
   exit $1
 }
 
+# Type is set by BASE
+: ${DEFAULT_TYPE:=$(GET_TYPE ${BASE})}
+TY=$DEFAULT_TYPE
+
 if [ "${SAMPLEDB}" == "skip" ]; then
   logs ${SUB} "<${BASE}> Skipping DB search by settings, calling MAPPER."
   errorlog["Have files"]="[ $(timestamp) ] OK - Skipped by --database argument"
@@ -121,13 +125,17 @@ if (( $MAP_WITH_STAR )); then
     mkdir -p "${star_out}"
     readFileCmd=-
     use_gzip "${star_input}" && readFileCmd=zcat
+    seedSearchStartLmax=50
+    [ ${filter_low[${TY}]+is_set} ] && seedSearchStartLmax="${filter_low[${TY}]}"
 
     logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']}\
  genomic database using STAR..."
+    logs ${SUB} "<${BASE}> Using seedSearchStartLmax value = ${seedSearchStartLmax}"
 
     STAR --runThreadN "${starproc}" --genomeDir="${STAR_INDEX['genome']}" \
     --readFilesIn "${star_input}" --outFileNamePrefix "${star_out}" \
     --readFilesCommand "${readFileCmd}" --genomeLoad LoadAndKeep \
+    --seedSearchStartLmax "${seedSearchStartLmax}" \
     --outSAMtype BAM SortedByCoordinate Unsorted --alignSJDBoverhangMin 1 \
     --alignIntronMax 1000000 --outFilterType BySJout --alignSJoverhangMin 8 \
     --limitBAMsortRAM 15000000000 --outReadsUnmapped Fastx
