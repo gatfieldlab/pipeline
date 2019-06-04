@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Pip setup for process_reads package
+Pip setup for `pipeline' package
 """
 
 import os
