@@ -49,7 +49,7 @@ setup(
                             'consume = pipeline.consume:main',
                             'filter_sam = pipeline.filter_sam:main']},
     install_requires=['cutadapt', 'accessories'],
-    dependency_links = ['git+https://github.com/gatfieldlab/pypackages/accessories.git#egg=accessories&subdirectory=accessories'],
+    dependency_links = ['git+https://github.com/gatfieldlab/pypackages/tarball/master#egg=accessories&subdirectory=accessories'],
     cmdclass={
         'develop': PostDevelopCommand,
         'install': PostInstallCommand},
