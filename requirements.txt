@@ -1,0 +1,7 @@
+colour==0.1.5
+cutadapt==2.3
+dnaio==0.3
+gatlab-tools-accessories==0.1.0
+-e git+file:///data/bulak/intra_packages/pipeline.git@af682f2bc99730380cc6e625b9171bf0279f559c#egg=pipeline
+pkg-resources==0.0.0
+xopen==0.7.0

@@ -13,7 +13,7 @@ import sys
 from argparse import ArgumentParser
 import fileinput
 from signal import signal, SIGPIPE, SIG_DFL
-from accessories import utils
+from gatlab_tools.accessories import utils
 
 
 __author__ = "Bulak Arpat"

@@ -48,8 +48,10 @@ setup(
                             'concat_map_logs = pipeline.concat_map_logs:main',
                             'consume = pipeline.consume:main',
                             'filter_sam = pipeline.filter_sam:main']},
-    install_requires=['cutadapt', 'accessories'],
-    dependency_links = ['git+https://github.com/gatfieldlab/pypackages/tarball/master#egg=accessories&subdirectory=accessories'],
+    install_requires=['cutadapt',
+                      'gatlab-tools-accessories==0.1.0'],
+#    dependency_links = ['https://github.com/gatfieldlab/tools_accessories#egg=gatlab-tools-accessories-0.1.0'],
+#    dependency_links = ['https://github.com/gatfieldlab/tools_accessories/archive/v0.1.0.tar.gz#egg=gatlab-tools-accessories-0.1.0'],
     cmdclass={
         'develop': PostDevelopCommand,
         'install': PostInstallCommand},
