@@ -24,7 +24,7 @@ class PostDevelopCommand(develop):
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
-        config_script = os.path.join(self.self.install_scripts, "pipeline_conf-riboprof.sh")
+        config_script = os.path.join(self.install_scripts, "pipeline_conf-riboprof.sh")
         install.run(self)
         check_call(["cp", config_script, CURDIR])
 

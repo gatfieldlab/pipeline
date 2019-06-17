@@ -9,7 +9,7 @@
 a configurable and semi-automated pipeline to trim, filter and map
 large sequence files produced by Next Generation Sequencing platforms.
 
-Copyright (C) 2015  A. Bulak Arpat
+Copyright (C) 2015-2019  A. Bulak Arpat
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

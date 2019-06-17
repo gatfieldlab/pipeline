@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb  1 16:15:01 2013
 
-@author: barpat
 """
+A simple size filter for fastq formatted outputs
+"""
+
 import sys
 import itertools
 
-VERSION = "v0.2"
+
+__author__ = "Bulak Arpat"
+__copyright__ = "Copyright 2015-2019, Bulak Arpat"
+__license__ = "GPLv3"
+__version__ = "0.2.0"
+__maintainer__ = "Bulak Arpat"
+__email__ = "Bulak.Arpat@unil.ch"
+__status__ = "Development"
+
+VERSION = __version__
 
 def main():
     """

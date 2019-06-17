@@ -1,30 +1,18 @@
 #!/usr/bin/env python3
 
-# utility to extract a tab-delimited flat text file to
-# serve as a simple database of samples, files in the
-# GNS output
-# -----------------------------------------
+"""
+utility to extract a tab-delimited flat text file to
+serve as a simple database of samples for pipeline,
+from files in an NGS output folder
+"""
 
-'''
-"pipeline" is a collection of shell scripts that together provide
-a configurable and semi-automated pipeline to trim, filter and map
-large sequence files produced by Next Generation Sequencing platforms.
-
-Copyright (C) 2015  A. Bulak Arpat
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-'''
+__author__ = "Bulak Arpat"
+__copyright__ = "Copyright 2017-2019, Bulak Arpat"
+__license__ = "GPLv3"
+__version__ = "0.2.0"
+__maintainer__ = "Bulak Arpat"
+__email__ = "Bulak.Arpat@unil.ch"
+__status__ = "Development"
 
 import sys
 

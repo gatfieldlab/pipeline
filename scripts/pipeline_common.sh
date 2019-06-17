@@ -5,7 +5,7 @@
 a configurable and semi-automated pipeline to trim, filter and map
 large sequence files produced by Next Generation Sequencing platforms.
 
-Copyright (C) 2015  A. Bulak Arpat
+Copyright (C) 2015-2019  A. Bulak Arpat
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 LICENSE
 
 export PROGRAM='pipeline'
-export VERSION="v0.1"
+export VERSION="v0.1.0"
 export __dir="$(pwd)"
-export USELINE="$PROGRAM $VERSION (C) 2015  A. Bulak Arpat"
+export USELINE="$PROGRAM $VERSION (C) 2015-2019  A. Bulak Arpat"
 read -r -d '' LICENSE <<'EOM'
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it
