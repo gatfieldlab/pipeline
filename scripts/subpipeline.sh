@@ -33,6 +33,7 @@ starproc=6
 source $CONFIG_FILE
 
 logfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.SUB.log"
+starlogfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.STAR.log"
 
 declare -A errorlog=( ["Have files"]="not processed"
                       ["MAPPER status"]="not processed"
@@ -99,6 +100,14 @@ exit_code=0
 # STAR genomic mapping
 # --------------------
 if (( $MAP_WITH_STAR )); then
+  # Check if we have STAR and get its version
+  star_ver=$( STAR --version 2>&1 )
+  if [ -z "${star_ver}" ]; then
+    exit_code=1
+    errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - STAR program not found"
+    logs ${SUB} ${ERROR}"STAR program not found [${BASE}]. STAR mapping will be\
+ skipped!"
+  fi
   # Figure out what to use as input
   if (( ${#MAPTYPE[@]} == 0 )); then
     if (( ${#PRE_PROC_STEPS[@]} == 0 )); then
@@ -115,7 +124,8 @@ if (( $MAP_WITH_STAR )); then
     errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - Input file not found"
     logs ${SUB} ${ERROR}"Input file '${star_input}' could not be found for\
  [${BASE}]. STAR mapping will be skipped!"
-  else
+  fi
+  if (( ! exit_code )); then
     # CPU reservation
     reserve_cpu ${starproc} "${SUB} Waiting for free CPU to map [${BASE}]\
  against genomic database using STAR"
@@ -132,19 +142,45 @@ if (( $MAP_WITH_STAR )); then
  genomic database using STAR..."
     logs ${SUB} "<${BASE}> Using seedSearchStartLmax value = ${seedSearchStartLmax}"
 
-    STAR --runThreadN "${starproc}" --genomeDir="${STAR_INDEX['genome']}" \
-    --readFilesIn "${star_input}" --outFileNamePrefix "${star_out}" \
-    --readFilesCommand "${readFileCmd}" --genomeLoad LoadAndKeep \
-    --seedSearchStartLmax "${seedSearchStartLmax}" \
+    star_cmd="STAR --runThreadN ${starproc} --genomeDir=${STAR_INDEX['genome']} \
+    --readFilesIn ${star_input} --outFileNamePrefix ${star_out} \
+    --readFilesCommand ${readFileCmd} --genomeLoad LoadAndKeep \
+    --seedSearchStartLmax ${seedSearchStartLmax} \
     --outSAMtype BAM SortedByCoordinate Unsorted --alignSJDBoverhangMin 1 \
     --alignIntronMax 1000000 --outFilterType BySJout --alignSJoverhangMin 8 \
-    --limitBAMsortRAM 15000000000 --outReadsUnmapped Fastx
+    --limitBAMsortRAM 15000000000 --outReadsUnmapped Fastx"
+    
+    if (( LOGGING )); then
+	cat >$starlogfile <<EOF
+==== '{CONF_TYPE}' pipeline STAR log file ====
 
+== STAR ==
+{star_ver}
+
+== Input file ==
+${star_input}
+
+== STAR variable params ==
+runThreadN          ${starproc}
+genomeDir           ${STAR_INDEX['genome']}
+outFileNamePrefix   ${star_out}
+readFilesCommand    ${readFileCmd}
+seedSearchStartLmax ${seedSearchStartLmax}
+
+== STAR command line ==
+${star_cmd}
+EOF
+
+    eval ${star_cmd}
     cur_err=$?
     if (( $cur_err )); then
       logs ${SUB} ${ERROR}"<${BASE}> Mapping against ${BOWTIE2X['genome']}\
  genomic database with STAR failed."
       errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - Mapping failed"
+      if (( LOGGING )); then
+        echo "
+STAR mapping failed!" >>$starlogfile
+      fi	  
     else
       logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']} genomic\
  database with STAR finished OK"
@@ -178,7 +214,7 @@ else
 fi
 
 
-# TOPHAT2 genomic mapping
+# TOPHAT2 genomic mapping ### WILL BE OBSOLETE SOON ###
 # -----------------------
 if (( $MAP_WITH_TOPHAT2 )); then
   # Figure out what to use as input
