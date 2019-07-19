@@ -1,0 +1,6 @@
+* [2019-07-18 Thu 08:53]                                         :self_note:todo:
+
+STAR process needs to be logged separately into the log folder to have a quick 
+access to when, which version and what arguments were called. The standard 
+Log.out file is too complicated for this use. 
+
