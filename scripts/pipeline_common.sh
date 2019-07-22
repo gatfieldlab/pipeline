@@ -35,7 +35,6 @@ export WARNING="\e[0;33m"
 export ERROR="\e[0;31m"
 export CPU_LOCK="${__dir}/cpu.lock"
 export CPU_FILE="${__dir}/cpu.txt"
-export TOPHAT_LOCK="${__dir}/tophat.lock"
 
 # color codes for logging
 export META="\e[0m\e[37m[META]\e[0m"
@@ -114,6 +113,18 @@ get_lowercase () {
   echo $( echo "$1" | tr '[:upper:]' '[:lower:]' )
 }
 
+get_version () {
+  local case_command=$1
+  local case_version=$2
+  if command -v ${case_command} >/dev/null 2>&1; then
+    version_str="$( ${case_command} ${case_version} 2>&1 )"
+    if [ -z "${version_str}" ]; then
+      version_str="UNDEF"
+    fi
+  fi
+  echo "${version_str}"
+}
+
 
 export -f get_read_type_from_first_chrs
 export -f get_read_type_from_first_split
@@ -124,3 +135,4 @@ export -f timestamp
 export -f use_gzip
 export -f get_major_version
 export -f get_lowercase
+export -f get_version

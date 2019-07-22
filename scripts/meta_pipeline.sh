@@ -60,7 +60,7 @@ Usage: $0 [options] SAMPLE_FILE
                      returned by 'nproc'
 -s|--suffix          suffix to append to output folder
                      names. If set, it will be used for
-                     logs, tophat and STAR folder.
+                     logs and STAR folder.
                      default is ''
 
 ${LICENSE}
@@ -141,8 +141,7 @@ if (( ${concurrent} >= $(( ${proc} / 2 )) )); then
   logs ${META} ${WARNING}"Therefore, ${concurrent} was set to $${concurrent}"
 fi
 
-declare -a SUBFOLDER=("fq" "logs${suffix}" "sam"
-                      "tophat${suffix}" "STAR${suffix}")
+declare -a SUBFOLDER=("fq" "logs${suffix}" "sam" "STAR${suffix}")
 
 if [ ! -d "${TRIMMED_DIR}" ]; then
   mkdir ${TRIMMED_DIR}
@@ -170,7 +169,6 @@ done
 cp ${samples} ${outputdir}/
 
 rm -f "${CPU_LOCK}"
-rm -f "${TOPHAT_LOCK}"
 export NPROC=${proc}
 export CONFIG_FILE="${__dir}/${config_file}"
 export CLEANUP_HOOKS="${__dir}/${cleanup_hooks}"

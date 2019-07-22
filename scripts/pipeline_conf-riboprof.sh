@@ -79,10 +79,6 @@ declare -A DIR_NAME=( ["raw"]=${RAW_DIR}
 declare -a MAPTYPE=("mouse-rrna" "human-rrna" "mouse-trna"
                     "drosophila-cdna" "mouse-cdna")
 
-# follow the sequential mapping with tophat2 against 'genome'?
-# 0 is no, 1 is yes. No other possibilities.
-MAP_WITH_TOPHAT2=1
-
 # library extensions - will be used in output files, has to be unique
 # attention, uniqueness will NOT be checked!
 declare -A LIBEXTS=(  ["mouse-rrna"]="mouse_rRNA"
@@ -139,9 +135,6 @@ declare -A KEEPFASTQ=(  ["trim"]="no"
                       ["human-rrna"]="non_rRNA.fastq.gz"
                       ["mouse-trna"]="non_mouse-tRNA.fastq.gz"
                       ["mouse-cdna"]="non_cdna.fastq.gz" )
-
-# which GTF DB to use for -GTF option of tophat2
-GTF_DB="/local/databases/mouse/gtf/Mus_musculus.GRCm38.84.sorted.gtf"
 
 # default bowtie2 params
 declare -A BOWTIE_PARAMS=( ["default"]="-p 2 -L 15 -k 20 --no-unal -q" )

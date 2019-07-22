@@ -193,8 +193,6 @@ size filter high: ${filter_high[$TY]}
 fastq_quality_filter params: ${FASTQ_QUALITY_FILTER_OPT}
   -- Mapping --
 map order: ${MAPTYPE[@]}
-map tophat2: ${MAP_WITH_TOPHAT2}
-tophat -gtf: ${GTF_DB}
 map STAR: ${MAP_WITH_STAR}
 STAR path: ${STAR_INDEX}
 
@@ -241,7 +239,7 @@ for maptype in "${MAPTYPE[@]}"; do
   i=$((i+1))
   cur_fq="fq/${BASE}${FILE_EXT[${maptype}]}"
   cur_log_file="logs${SUFFIX}/${BASE}.${LIBEXTS[${maptype}]}.bw2.log"
-  cur_faidx="${BOWTIE2_INDEXES}${BOWTIE2X[${maptype}]}.fa.fai"
+  cur_faidx="${BOWTIE2_INDEXES}/${BOWTIE2X[${maptype}]}.fa.fai"
   cur_bam="sam/$BASE.${LIBEXTS[${maptype}]}"
   cur_keep_bam="sam/${BASE}.${LIBEXTS[${maptype}]}.kept_filtered.bam"
   cur_filter_cmds=($(echo ${TOMERGE[${maptype}]} | tr "|;\-," " "))

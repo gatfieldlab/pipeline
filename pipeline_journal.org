@@ -4,3 +4,17 @@ STAR process needs to be logged separately into the log folder to have a quick
 access to when, which version and what arguments were called. The standard 
 Log.out file is too complicated for this use. 
 
+* [2019-07-21 Sun 22:53]                                          :self_note:bug:
+
+While implementing logging for STAR processes - git branch starlog - I have 
+introduced a bug into subpipline.sh. Most likely it is an unmatched paran .. 
+
+* [2019-07-22 Mon 11:41]                                               :progress:
+
+starlog brach is not done. It will be merged into master. Changes include:
+
+  - Extra log file for STAR mapping: ..pipeline.STAR.log
+  - This log file keeps executable versions, and complete command line calls
+  - tophat support completely removed (should have been done separately, but...
+  - STAR log files (by STAR itself) from real mapping step are kept under a
+    different name. Otherwise, Log.out was being overwritten during bedGraph step

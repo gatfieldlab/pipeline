@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # SUB - splits the jobs for each sample and calls MAPPER
-# and performs TopHat mapping and SAM2BAM for each sample
+# and performs STAR mapping and SAM2BAM for each sample
 
 :<<'LICENSE'
 "pipeline" is a collection of shell scripts that together provide
@@ -27,7 +27,6 @@ LICENSE
 BASE="$1"
 SAMPLEDB="$3"
 FILEARRAY=""
-tophatproc=2
 starproc=6
 
 source $CONFIG_FILE
@@ -37,7 +36,7 @@ starlogfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.STAR.log"
 
 declare -A errorlog=( ["Have files"]="not processed"
                       ["MAPPER status"]="not processed"
-                      ["TOPHAT2 mapping"]="not processed"
+                      ["TOPHAT2 mapping"]="obsolete"
                       ["STAR mapping"]="not processed" )
 
 log_and_exit() {
@@ -101,11 +100,18 @@ exit_code=0
 # --------------------
 if (( $MAP_WITH_STAR )); then
   # Check if we have STAR and get its version
-  star_ver=$( STAR --version 2>&1 )
+  star_ver=$( get_version "STAR" "--version" "${SUB}" )
+  samtools_ver=$( get_version "samtools" "--version" "${SUB}" )  
   if [ -z "${star_ver}" ]; then
     exit_code=1
     errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - STAR program not found"
     logs ${SUB} ${ERROR}"STAR program not found [${BASE}]. STAR mapping will be\
+ skipped!"
+  fi
+  if [ -z "${samtools_ver}" ]; then
+    exit_code=1
+    errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - samtools program not found"
+    logs ${SUB} ${ERROR}"samtools program not found [${BASE}]. STAR mapping will be\
  skipped!"
   fi
   # Figure out what to use as input
@@ -152,10 +158,13 @@ if (( $MAP_WITH_STAR )); then
     
     if (( LOGGING )); then
 	cat >$starlogfile <<EOF
-==== '{CONF_TYPE}' pipeline STAR log file ====
+==== '${CONF_TYPE}' pipeline STAR log file ====
 
 == STAR ==
-{star_ver}
+${star_ver}
+
+== samtools ==
+${samtools_ver}
 
 == Input file ==
 ${star_input}
@@ -167,10 +176,11 @@ outFileNamePrefix   ${star_out}
 readFilesCommand    ${readFileCmd}
 seedSearchStartLmax ${seedSearchStartLmax}
 
-== STAR command line ==
+== STAR mapper command line ==
 ${star_cmd}
-EOF
 
+EOF
+    fi
     eval ${star_cmd}
     cur_err=$?
     if (( $cur_err )); then
@@ -185,17 +195,27 @@ STAR mapping failed!" >>$starlogfile
       logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']} genomic\
  database with STAR finished OK"
       echo STAR --genomeDir="${STAR_INDEX['genome']}" \
-            --genomeLoad Remove > "${CLEANUP_HOOKS}"
+           --genomeLoad Remove > "${CLEANUP_HOOKS}"
+      for logName in Log.out Log.final.out Log.progress.out; do
+        cp ${star_out}${logName} ${star_out}Mapper.${logName}
+      done
       logs ${SUB} "Indexing [${BASE}] genomic map"
       samtools index "${star_out}"Aligned.sortedByCoord.out.bam
 
       logs ${SUB} "Creating bedGraph files for [${BASE}]"
 
-      STAR --runMode inputAlignmentsFromBAM --outWigType bedGraph \
-      --inputBAMfile "${star_out}"Aligned.sortedByCoord.out.bam \
-      --outWigStrand Unstranded --runThreadN "${starproc}" \
-      --outFileNamePrefix "${star_out}"
-
+      star_cmd="STAR --runMode inputAlignmentsFromBAM --outWigType bedGraph \
+      --inputBAMfile ${star_out}Aligned.sortedByCoord.out.bam \
+      --outWigStrand Unstranded --runThreadN ${starproc} \
+      --outFileNamePrefix ${star_out}"
+      if (( LOGGING )); then
+	cat >>$starlogfile <<EOF
+== STAR bedGraph command line ==
+${star_cmd}
+ 
+EOF
+      fi
+      eval ${star_cmd}
       cur_err=$?
       if (( $cur_err )); then
         logs ${SUB} ${ERROR}"<${BASE}> bedGraph files could not be created"
@@ -211,91 +231,6 @@ STAR mapping failed!" >>$starlogfile
   fi 
 else
   errorlog["STAR mapping"]="[ $(timestamp) ] OK - Skipped by configuration"
-fi
-
-
-# TOPHAT2 genomic mapping ### WILL BE OBSOLETE SOON ###
-# -----------------------
-if (( $MAP_WITH_TOPHAT2 )); then
-  # Figure out what to use as input
-  if (( ${#MAPTYPE[@]} == 0 )); then
-    if (( ${#PRE_PROC_STEPS[@]} == 0 )); then
-      FINALMAP=${INIT_PROC}
-    else
-      FINALMAP=${PRE_PROC_STEPS[${#PRE_PROC_STEPS[@]}-1]}
-    fi
-  else
-    FINALMAP=${MAPTYPE[${#MAPTYPE[@]}-1]}
-  fi
-  tophat_input="fq/${BASE}${FILE_EXT[$FINALMAP]}"
-  if [ ! -f ${tophat_input} ]; then
-    exit_code=1
-    errorlog["TOPHAT2 mapping"]="[ $(timestamp) ] ERROR - Input file not found"
-    logs ${SUB} ${ERROR}"<${BASE}> Input file '${tophat_input}' could not be\
- found; tophat2 mapping will be skipped!"
-
-  else
-    # CPU reservation
-
-    reserve_cpu ${tophatproc} "${SUB} Waiting for free CPU to map [${BASE}]\
- against genomic database using TopHat2"
-
-    logs ${SUB} "<${BASE}> Entering now TopHat2 genomic mapping"
-    TRINDEX="${BOWTIE2X['genome']}_data/known"
-    while [ ! -f $TRINDEX".rev.1.bt2" ]; do
-        lockfile -r 1 -! ${TOPHAT_LOCK} > /dev/null 2>&1
-        if (( $? )); then
-            break
-        fi
-        logs ${SUB} "<${BASE}> Waiting another instance to finish\
- confirming/creating $TRINDEX ..."
-        sleep 120
-    done
-
-    if [ ! -f $TRINDEX".rev.1.bt2" ]; then
-
-        logs ${SUB} "Tophat transcriptome-index does not exist\
- for ${BOWTIE2X['genome']}."
-
-        logs ${SUB} "Creating '${TRINDEX}' ..."
-
-        tophat2 --GTF $GTF_DB --transcriptome-index="${TRINDEX}"\
-   -p ${tophatproc} -o "${BOWTIE2X['genome']}"_data.log "${BOWTIE2X['genome']}"
-
-        if (( $? )); then
-
-          logs ${SUB} ${WARNING}"Tophat index '${TRINDEX}' could not be\
- created. This will probably cause errors downstream!"
-
-        fi
-    fi
-
-    logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']}\
- genomic database using TopHat2..."
-
-    rm -f ${TOPHAT_LOCK} &&
-    tophat2 --transcriptome-index="${TRINDEX}" -p "${tophatproc}"\
-   -o tophat"${SUFFIX}"/"${BASE}" "${BOWTIE2X['genome']}" "${tophat_input}"
-
-    cur_err=$?
-    release_cpu ${tophatproc}
-    if (( $cur_err )); then
-      exit_code=1
-      errorlog["TOPHAT2 mapping"]="[ $(timestamp) ] ERROR - Something went wrong"
-
-      logs ${SUB} ${ERROR}"<${BASE}> Mapping against ${BOWTIE2X['genome']}\
- genomic database with TopHat2 failed."
-
-    else
-      errorlog["TOPHAT2 mapping"]="[ $(timestamp) ] OK - All finished"
-
-      logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']} genomic\
- database finished OK"
-
-    fi
-  fi
-else
-  errorlog["TOPHAT2 mapping"]="[ $(timestamp) ] OK - Skipped by configuration"
 fi
 
 cd ..
