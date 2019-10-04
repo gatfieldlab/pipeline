@@ -155,6 +155,12 @@ if [ ! -d "${FILTERED_DIR}" ]; then
  created"
 fi
 
+if [ ! -d "${UMI_DIR}" ]; then
+  mkdir ${UMI_DIR}
+  logs ${META} ${WARNING}"UMI folder '${UMI_DIR}' did not exist,\
+ created"
+fi
+
 if [ ! -d "${outputdir}" ]; then
     mkdir ${outputdir}
 fi
