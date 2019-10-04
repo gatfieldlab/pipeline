@@ -18,3 +18,20 @@ starlog brach is not done. It will be merged into master. Changes include:
   - tophat support completely removed (should have been done separately, but...
   - STAR log files (by STAR itself) from real mapping step are kept under a
     different name. Otherwise, Log.out was being overwritten during bedGraph step
+* [2019-10-04 Fri 11:15]                                        :self_note:f_umi:
+
+New feature implementation for UMI support. The f_umi branch is envisioned to 
+do the following things: 
+
+1) UMI specification in the config file.
+2) cutadapt support should go config file as it remains pretty much same
+3) After cutadapt, size and quality filtering we need to call umi_tools extract
+4) Before calling the pipeline, there should be a *separate* utility to call
+   umi_tools whitelist to create a whitelist of sample-barcodes. This whitelist then
+   needs to be inspected by the user to make sure that the retrieved sample barcodes
+   match the experimental ones
+5) After extraction the pipeline should go on similar as before with sequential
+   mapping. At the end of mapping, perhaps in parallel to the optional 'genome'
+   mapping, the output of the selected map (by default cDNA) should be used for
+   deduping.
+6) Dedup(licat)ing will be done by umi_tools dedup using the 'distance' method.

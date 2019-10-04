@@ -46,6 +46,7 @@ export SAM2BAM="\e[0m\e[36m[SAM2BAM]\e[0m"
 export RAW_DIR="raw_data"
 export TRIMMED_DIR="trimmed_data"
 export FILTERED_DIR="filtered_data"
+export UMI_DIR="umi_data"
 
 logs() {
   echo -e $1 "${*:2} \e[0m"

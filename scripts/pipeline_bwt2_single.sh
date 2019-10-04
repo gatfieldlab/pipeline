@@ -130,6 +130,16 @@ for proc_step in "${PRE_PROC_STEPS[@]}"; do
         case_log="2> /dev/null"
       fi
       ;;
+    umi)
+      case_command="umi_tools"
+      case_version="--version"
+      case_opts="extract --whitelist ${UMI_WHITELIST} ${UMI_EXTRACT_OPTS} --log2stderr"
+      if (( LOGGING )); then
+	case_log="2> ${cur_log_file}"
+      else
+	case_log="2> /dev/null"
+      fi
+      ;;
   esac
   if command -v ${case_command} >/dev/null 2>&1; then
     version_str="$( ${case_command} ${case_version} 2>&1 )"
@@ -184,6 +194,7 @@ read_type: ${TY}
 number of CPU cores: $( nproc )
 number of parallel processes: ${NPROC}
 input found: ${INPUT[@]}
+
   -- Pre-processing --
 steps: ${PRE_PROC_STEPS[@]}
 adapter: ${ADAPTER}
@@ -191,6 +202,9 @@ cutadapt params: ${CUTADAPT_OPTS}
 size filter low: ${filter_low[$TY]}
 size filter high: ${filter_high[$TY]}
 fastq_quality_filter params: ${FASTQ_QUALITY_FILTER_OPT}
+umi_tools whitelist: ${UMI_WHITELIST}
+umi_tools params: ${UMI_EXTRACT_OPTS}
+
   -- Mapping --
 map order: ${MAPTYPE[@]}
 map STAR: ${MAP_WITH_STAR}
