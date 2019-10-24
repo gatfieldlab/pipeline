@@ -35,3 +35,10 @@ do the following things:
    mapping, the output of the selected map (by default cDNA) should be used for
    deduping.
 6) Dedup(licat)ing will be done by umi_tools dedup using the 'distance' method.
+* [2019-10-04 Fri 21:24]                                        :self_note:f_umi:
+
+UMI counts look very good - 95% of reads (alignments) have less than 10 dups. 
+umi-tools doesn't do a good job at positions such as Mups where many multireads 
+occur with different UMIs. It groups way too many of them into same bins even 
+with rather different UMIs. 
+
