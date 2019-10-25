@@ -2,6 +2,7 @@
 
 # SUB - splits the jobs for each sample and calls MAPPER
 # and performs STAR mapping and SAM2BAM for each sample
+# then it performs all DEDUP actions
 
 :<<'LICENSE'
 "pipeline" is a collection of shell scripts that together provide
@@ -275,6 +276,7 @@ EOF
     errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - necessary software not found"
   else
     umi_errors=""
+    declare -a what_todo
     # loop through possible input types and associated dedup methods
     for maptype in "${!DEDUP[@]}"; do
       skip=0
@@ -294,12 +296,12 @@ EOF
 	umi_out="sam/${umi_path}"
 	filter_log="logs${SUFFIX}/${umi_path}.filterUMI.log"
       fi
-      if [ ! -f "${umi_input}" ]; then
-	umi_errors="${umi_errors}|'${umi_base}':Input file not found"
-	logs ${SUB} ${ERROR}"Input file '${umi_input}' could not be found for\
+      if [ ! -f "${umi_input}" -o ! -f "${umi_input}.bai" ]; then
+	umi_errors="${umi_errors}|'${umi_base}':Input file/index not found"
+	logs ${SUB} ${ERROR}"Input file/index '${umi_input}' could not be found for\
  [${BASE}]. Deduplication will be skipped!"
 	skip=1
-	umi_input="Could NOT be found!"
+	umi_input="File/index could NOT be found!"
       fi
       # Setup DEDUP type + cell-barcode splitting option
       cur_umi_opts=($(echo ${DEDUP[${maptype}]} | tr "|;\-," " "))
@@ -310,7 +312,7 @@ EOF
 	  cell_split=1
 	fi
       fi
-      declare -a what_todo
+      what_todo=()
       # get read and map specific umi_tools params
       read_maptype="${TY}_${maptype}"
       if [ ${UMI_TOOLS_OPTS[$read_maptype]+isset} ]; then
@@ -429,7 +431,7 @@ BAM conversion failed!" >>$deduplogfile
 	      rm "${umi_out}"_split_*.sam
 	    fi
 	  else
-	   [ -f "${umi_out}.bam" ] && samtools index "${umi_out}.bam"
+	   [ "${umi_type}" != "skip" -a -f "${umi_out}.bam" ] && samtools index "${umi_out}.bam"
 	  fi
 	fi
       fi
