@@ -311,18 +311,30 @@ EOF
 	fi
       fi
       declare -a what_todo
+      # get read and map specific umi_tools params
+      read_maptype="${TY}_${maptype}"
+      if [ ${UMI_TOOLS_OPTS[$read_maptype]+isset} ]; then
+	cur_umi="${read_maptype}"
+      elif [ ${UMI_TOOLS_OPTS[$TY]+isset} ]; then
+	cur_umi=${TY} 
+      elif [ ${UMI_TOOLS_OPTS[$maptype]+isset} ]; then
+	cur_umi="${maptype}"
+      else
+	cur_umi="default"
+      fi
+      cur_umi_opts=${UMI_TOOLS_OPTS[${cur_umi}]}
       case "${umi_type}" in
 	skip)
+	  what_todo+=("skipping dedup")
 	  umi_pipe=""
 	  umi_bam=""
-	  split_pipe="samtools view ${umi_input} | awk -v filebase=${umi_out} \
+	  split_pipe="samtools view -h ${umi_input} | awk -v filebase=${umi_out} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
      	  ;;
 	dedup)
 	  what_todo+=("deduplicating")
 	  umi_out="${umi_out}.dedup"
-	  umi_pipe="umi_tools dedup -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log} --output-bam "
+	  umi_pipe="umi_tools dedup -I ${umi_input} ${cur_umi_opts} --log=${umi_log} "
 	  umi_bam="--stdout ${umi_out}.bam"
 	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
@@ -330,8 +342,7 @@ EOF
 	group)
 	  what_todo+=("grouping dedups")
 	  umi_out="${umi_out}.group"
-	  umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log} --output-bam "
+	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} --output-bam "
 	  umi_bam="--stdout ${umi_out}.bam"
 	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
@@ -339,18 +350,17 @@ EOF
 	filter)
 	  what_todo+=("filtering dedups")
 	  umi_out="${umi_out}.filter"
-	  umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log} --output-bam | samtools view -h | filterUmiFromSam \
- 2>${filter_log}"
+	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} \
+ --output-bam | samtools view -h | filterUmiFromSam 2>${filter_log}"
 	  umi_bam="| samtools view -bS - > ${umi_out}.bam"
 	  split_pipe="| awk -v filebase=${umi_out} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
 	  ;;
 	*)
 	  # anything else, including empty options raise error
-	  umi_pipe="SKIPPED due to improper DEDUP options"
-	  umi_errors="${umi_errors}|'${umi_base}':improper DEDUP options"
-	  logs ${SUB} ${ERROR}"<${BASE}> DEDUP option was not set properly for\
+	  umi_pipe="SKIPPED due to improper DEDUP config"
+	  umi_errors="${umi_errors}|'${umi_base}':improper DEDUP config"
+	  logs ${SUB} ${ERROR}"<${BASE}> DEDUP was not configured properly for\
  '${umi_base}'. Deduplication will be skipped!"
 	  skip=1
 	  ;;
@@ -372,6 +382,8 @@ ${umi_input}
 == umi_tools params ==
 function           ${umi_type}
 barcode splitting  ${cell_split}
+option group       ${cur_umi}
+CLI options        ${cur_umi_opts}
 
 == deduplication command line ==
 ${umi_command}
@@ -382,7 +394,7 @@ EOF
 	logs ${SUB} "<${BASE}> Skipping deduplication for '${umi_base}'"
       else
 	doing=$(join_by ", " "${what_todo[@]}")
-	logs ${SUB} "<${BASE}> ${doing^} for '${umi_base}' using '${umi_type}'"
+	logs ${SUB} "<${BASE}> ${doing^} for '${umi_base}'"
 	# Evaluate the dedup command
 	eval ${umi_command}
 	cur_err=$?
@@ -394,7 +406,7 @@ EOF
 UMI deduplication failed!" >>$deduplogfile
 	  fi	  
 	else
-	  logs ${SUB} "<${BASE}> UMI deduplication for '${umi_base}' finished successfully"
+	  logs ${SUB} "<${BASE}> ${doing^} finished for '${umi_base}'"
 	  if (( $cell_split )); then
 	    logs ${SUB} "<${BASE}> Converting split SAMs to BAMs for '${umi_base}'"
 	    umi_out_path="${umi_out%/*}"
@@ -412,6 +424,7 @@ BAM conversion failed!" >>$deduplogfile
 	      fi
 	    else
 	      logs ${SUB} "<${BASE}> SAM outputs were converted to BAM for '${umi_base}'"
+	      rm "${umi_out}"_split_*.sam
 	    fi
 	  fi
 	fi

@@ -42,3 +42,14 @@ umi-tools doesn't do a good job at positions such as Mups where many multireads
 occur with different UMIs. It groups way too many of them into same bins even 
 with rather different UMIs. 
 
+* [2019-10-25 Fri 13:39]                                   :self_note:f_umi:todo:
+
+These need to be done: 
+
+1) Sort and index output BAMs
+2) Clean up all intermediate SAMs
+3) Test all possible options
+4) Test for multiple mapping types including STAR
+5) Add helper scripts for i5/i7 splitting and whitelisting. (Can whitelisting be
+done within the pipeline?)
+
