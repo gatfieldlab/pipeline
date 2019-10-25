@@ -126,6 +126,13 @@ get_version () {
   echo "${version_str}"
 }
 
+join_by () {
+    local d=$1;
+    shift;
+    echo -n "$1";
+    shift;
+    printf "%s" "${@/#/$d}";
+}
 
 export -f get_read_type_from_first_chrs
 export -f get_read_type_from_first_split
@@ -137,3 +144,4 @@ export -f use_gzip
 export -f get_major_version
 export -f get_lowercase
 export -f get_version
+export -f join_by

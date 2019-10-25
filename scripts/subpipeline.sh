@@ -33,6 +33,7 @@ source $CONFIG_FILE
 
 logfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.SUB.log"
 starlogfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.STAR.log"
+deduplogfile="${__dir}/${2}/logs${SUFFIX}/${BASE}.pipeline.DEDUP.log"
 
 declare -A errorlog=( ["Have files"]="not processed"
                       ["MAPPER status"]="not processed"
@@ -241,100 +242,25 @@ fi
 # UMI deduplication
 # -----------------
 if (( ${#DEDUP[@]} )); then
+  umi_exit_code=0
   # Check if we have umi_tools and get its version
   umi_ver=$( get_version "umi_tools" "--version" "${SUB}" )
   samtools_ver=$( get_version "samtools" "--version" "${SUB}" )
   if [ -z "${umi_ver}" ]; then
-    exit_code=1
-    errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - umi_tools program not found"
+    umi_exit_code=1
     logs ${SUB} ${ERROR}"UMI-tools (umi_tools) not found [${BASE}]. UMI\
  deduplication will be skipped!"
+    umi_ver="Not found!"
   fi
   if [ -z "${samtools_ver}" ]; then
-    exit_code=1
-    errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - samtools program not found"
+    umi_exit_code=1
     logs ${SUB} ${ERROR}"samtools program not found [${BASE}]. UMI deduplication\
  will be skipped!"
+    samtools_ver="Not found!"
   fi
-  # loop through possible input types and associated dedup methods
-  for maptype in "${!DEDUP[@]}"; do
-    # Figure out what to use as input
-    if [ "${maptype}" = "genome" ]; then
-      umi_base="STAR${SUFFIX}"
-      umi_input="${umi_base}/${BASE}/Aligned.sortedByCoord.out.bam"
-      umi_log="${umi_base}/${BASE}/umi_tools.log"
-      umi_out="${umi_base}/${BASE}/Aligned"
-      deduplogfile="${umi_base}/${BASE}/dedup.log"
-    else
-      umi_base="${LIBEXTS[${maptype}]}"
-      umi_input="sam/${BASE}.${umi_base}.sorted.bam"
-      umi_log="logs${SUFFIX}/${BASE}.${umi_base}.umi_tools.log"
-      umi_out="sam/${BASE}.${umi_base}"
-      deduplogfile="logs${SUFFIX}/${BASE}.${umi_base}.dedup.log"
-    fi
-    if [ ! -f "${umi_input}" ]; then
-      exit_code=1
-      errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - Input file not found"
-      logs ${SUB} ${ERROR}"Input file '${umi_input}.bam' could not be found for\
- [${BASE}]. Deduplication will be skipped!"
-    fi
-    # Setup DEDUP type + cell-barcode splitting option
-    cur_umi_opts=($(echo ${DEDUP[${maptype}]} | tr "|;\-," " "))
-    umi_type="${cur_umi_opts[0]}"
-    cell_split=0
-    if [ "${#cur_umi_opts[@]}" -eq 2 ]; then
-      if [[ " s split " =~ " ${cur_umi_opts[1]} " ]]; then
-	cell_split=1
-      fi
-    fi
-    case "${umi_type}" in
-      skip)
-	umi_pipe=""
-	umi_bam=""
-	split_pipe="samtools view ${umi_input} | awk -v filebase=${umi_out} \
- '{split($1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
-     	;;
-      dedup)
-	umi_out="${umi_out}.dedup"
-	umi_pipe="umi_tools dedup -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log} --output-bam "
-	umi_bam="--stdout ${umi_out}.bam"
-	split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
- '{split($1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
-	;;
-      group)
-	umi_out="${umi_out}.group"
-	umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log} --output-bam "
-	umi_bam="--stdout ${umi_out}.bam"
-	split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
- '{split($1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
-	;;
-      filter)
-	umi_out="${umi_out}.filter"
-	umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
- --read-length --log=${umi_log$ --output-bam | samtools view -h | filterUmiFromSam \
- 2>UMILOG"
-	umi_bam="| samtools view -bS - > ${umi_out}.bam"
-	split_pipe="| awk -v filebase=${umi_out} \
- '{split($1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
-	;;
-      *)
-	# anything else, including empty options raise error
-	exit_code=1
-	errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - improper DEDUP options"
-	logs ${SUB} ${ERROR}"DEDUP option was not set properly for\
- [${BASE}]. Deduplication will be skipped!"
-	;;
-    esac
-    logs ${SUB} "<${BASE}> Deduplicating ${umi_base}"
-    if (( $cell_split )); then
-      umi_command="${umi_pipe}${split_pipe}"
-    else
-      umi_command="${umi_pipe}${umi_bam}"
-    fi
-    if (( LOGGING )); then
-	cat >$deduplogfile <<EOF
+  # Init logging - dump common elements
+  if (( LOGGING )); then
+    cat >$deduplogfile <<EOF
 ==== '${CONF_TYPE}' pipeline DEDUPLICATION log file ====
 
 == umi_tools ==
@@ -342,6 +268,103 @@ ${umi_ver}
 
 == samtools ==
 ${samtools_ver}
+
+EOF
+  fi
+  if (( ${umi_exit_code} )); then
+    errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - necessary software not found"
+  else
+    umi_errors=""
+    # loop through possible input types and associated dedup methods
+    for maptype in "${!DEDUP[@]}"; do
+      skip=0
+      # Figure out what to use as input
+      if [ "${maptype}" = "genome" ]; then
+	umi_base="STAR${SUFFIX}"
+	umi_path="${umi_base}/${BASE}"
+	umi_input="${umi_path}/Aligned.sortedByCoord.out.bam"
+	umi_log="${umi_path}/umi_tools.log"
+	umi_out="${umi_path}/Aligned"
+	filter_log="${umi_path}/filterUMI.log"
+      else
+	umi_base="${LIBEXTS[${maptype}]}"
+	umi_path="${BASE}.${umi_base}"
+	umi_input="sam/${umi_path}.sorted.bam"
+	umi_log="logs${SUFFIX}/${umi_path}.umi_tools.log"
+	umi_out="sam/${umi_path}"
+	filter_log="logs${SUFFIX}/${umi_path}.filterUMI.log"
+      fi
+      if [ ! -f "${umi_input}" ]; then
+	umi_errors="${umi_errors}|'${umi_base}':Input file not found"
+	logs ${SUB} ${ERROR}"Input file '${umi_input}' could not be found for\
+ [${BASE}]. Deduplication will be skipped!"
+	skip=1
+	umi_input="Could NOT be found!"
+      fi
+      # Setup DEDUP type + cell-barcode splitting option
+      cur_umi_opts=($(echo ${DEDUP[${maptype}]} | tr "|;\-," " "))
+      umi_type="${cur_umi_opts[0]}"
+      cell_split=0
+      if [ "${#cur_umi_opts[@]}" -eq 2 ]; then
+	if [[ " s split " =~ " ${cur_umi_opts[1]} " ]]; then
+	  cell_split=1
+	fi
+      fi
+      declare -a what_todo
+      case "${umi_type}" in
+	skip)
+	  umi_pipe=""
+	  umi_bam=""
+	  split_pipe="samtools view ${umi_input} | awk -v filebase=${umi_out} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+     	  ;;
+	dedup)
+	  what_todo+=("deduplicating")
+	  umi_out="${umi_out}.dedup"
+	  umi_pipe="umi_tools dedup -I ${umi_input} --method=directional --per-cell \
+ --read-length --log=${umi_log} --output-bam "
+	  umi_bam="--stdout ${umi_out}.bam"
+	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  ;;
+	group)
+	  what_todo+=("grouping dedups")
+	  umi_out="${umi_out}.group"
+	  umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
+ --read-length --log=${umi_log} --output-bam "
+	  umi_bam="--stdout ${umi_out}.bam"
+	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  ;;
+	filter)
+	  what_todo+=("filtering dedups")
+	  umi_out="${umi_out}.filter"
+	  umi_pipe="umi_tools group -I ${umi_input} --method=directional --per-cell \
+ --read-length --log=${umi_log} --output-bam | samtools view -h | filterUmiFromSam \
+ 2>${filter_log}"
+	  umi_bam="| samtools view -bS - > ${umi_out}.bam"
+	  split_pipe="| awk -v filebase=${umi_out} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  ;;
+	*)
+	  # anything else, including empty options raise error
+	  umi_pipe="SKIPPED due to improper DEDUP options"
+	  umi_errors="${umi_errors}|'${umi_base}':improper DEDUP options"
+	  logs ${SUB} ${ERROR}"<${BASE}> DEDUP option was not set properly for\
+ '${umi_base}'. Deduplication will be skipped!"
+	  skip=1
+	  ;;
+      esac
+      if (( $cell_split )); then
+	what_todo+=("splitting barcodes")
+	umi_command="${umi_pipe}${split_pipe}"
+      else
+	umi_command="${umi_pipe}${umi_bam}"
+      fi
+      if (( LOGGING )); then
+	cat >>$deduplogfile <<EOF
+== Input type/name ==
+${umi_base}
 
 == Input file ==
 ${umi_input}
@@ -354,42 +377,58 @@ barcode splitting  ${cell_split}
 ${umi_command}
 
 EOF
-    fi
-    eval ${umi_command}
-    cur_err=$?
-    if (( $cur_err )); then
-      logs ${SUB} ${ERROR}"<${BASE}> Deduplication failed."
-      errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - Deduplication failed"
-      if (( LOGGING )); then
-        echo "
-UMI deduplication failed!" >>$deduplogfile
-      fi	  
-    else
-      logs ${SUB} "<${BASE}> UMI deduplication finished successfully"
-      if (( $cell_split )); then
-	logs ${SUB} "<${BASE}> Splitting BAM by adaptor barcodes"
-	find . -type f -name "${umi_out}_?*.sam" | \
-	  xargs -i bash -c \
-		'cat "${1%_*}_.sam" {} | samtools view -bS - > "${1%.sam}.bam"' - '{}'
+      fi
+      if (( ${skip} )); then
+	logs ${SUB} "<${BASE}> Skipping deduplication for '${umi_base}'"
+      else
+	doing=$(join_by ", " "${what_todo[@]}")
+	logs ${SUB} "<${BASE}> ${doing^} for '${umi_base}' using '${umi_type}'"
+	# Evaluate the dedup command
+	eval ${umi_command}
 	cur_err=$?
 	if (( $cur_err )); then
-	  logs ${SUB} ${ERROR}"<$BASE> Splitting by barcodes failed!"
-	  errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR - Barcode splitting failed"
+	  logs ${SUB} ${ERROR}"<${BASE}> Deduplication failed for '${umi_base}'."
+	  umi_errors="${umi_errors}|'${umi_base}':Dedup failed"
 	  if (( LOGGING )); then
-	    echo "
-Splitting by adaptor barcodes failed!" >>$deduplogfile
-	  fi
+            echo "
+UMI deduplication failed!" >>$deduplogfile
+	  fi	  
 	else
-	  logs ${SUB} "<${BASE}> Barcode splitting finished OK"
+	  logs ${SUB} "<${BASE}> UMI deduplication for '${umi_base}' finished successfully"
+	  if (( $cell_split )); then
+	    logs ${SUB} "<${BASE}> Converting split SAMs to BAMs for '${umi_base}'"
+	    umi_out_path="${umi_out%/*}"
+	    umi_out_file="${umi_out##*/}_split_"
+	    find ${umi_out_path} -type f -name "${umi_out_file}?*.sam" | \
+	      xargs -i bash -c \
+		    'cat "${1%_*}_.sam" {} | samtools view -bS - > "${1%.sam}.bam"' - '{}'
+	    cur_err=$?
+	    if (( $cur_err )); then
+	      logs ${SUB} ${ERROR}"<$BASE> BAM conversion failed for '${umi_base}'!"
+	      umi_errors="${umi_errors}|'${umi_base}':BAM conversion failed"
+	      if (( LOGGING )); then
+		echo "
+BAM conversion failed!" >>$deduplogfile
+	      fi
+	    else
+	      logs ${SUB} "<${BASE}> SAM outputs were converted to BAM for '${umi_base}'"
+	    fi
+	  fi
 	fi
       fi
+    done
+    if [ ! -z "${umi_errors}" ]; then
+      umi_exit_code=1
+      errorlog["UMI deduplication"]="[ $(timestamp) ] ERROR ${umi_errors}"
     fi
-    if (( $cur_err )); then
-      exit_code=1
-    else
-      errorlog["UMI deduplication"]="[ $(timestamp) ] OK - All finished"
-    fi
-  done
+  fi
+  if (( ${umi_exit_code} )); then
+    exit_code=1
+  else
+    errorlog["UMI deduplication"]="[ $(timestamp) ] OK - All finished"
+  fi
+else
+  errorlog["UMI deduplication"]="[ $(timestamp) ] OK - Skipped by configuration"
 fi
 
 cd ..
