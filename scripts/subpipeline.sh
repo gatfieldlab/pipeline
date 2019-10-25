@@ -424,8 +424,12 @@ BAM conversion failed!" >>$deduplogfile
 	      fi
 	    else
 	      logs ${SUB} "<${BASE}> SAM outputs were converted to BAM for '${umi_base}'"
+	      find ${umi_out_path} -type f -name "${umi_out_file}*.bam" | \
+		xargs -P 4 -i bash -c 'samtools index {}'
 	      rm "${umi_out}"_split_*.sam
 	    fi
+	  else
+	   [ -f "${umi_out}.bam" ] && samtools index "${umi_out}.bam"
 	  fi
 	fi
       fi
