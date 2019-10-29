@@ -45,7 +45,8 @@ setup(
         'scripts/pipeline_bwt2_single.sh',
         'scripts/pipeline_common.sh',
         'scripts/subpipeline.sh',
-        'scripts/pipeline_conf-riboprof.sh'
+        'scripts/pipeline_conf-riboprof.sh',
+        'scripts/pipeline_whitelist.sh'
     ],
     entry_points={
         'console_scripts': [
@@ -57,7 +58,7 @@ setup(
             'split_barcode = pipeline.split_barcode:main'
         ]},
     install_requires=[
-        'cutadapt',
+        'xopen',
         'gatlab-tools-accessories==0.1.0'
     ],
     cmdclass={

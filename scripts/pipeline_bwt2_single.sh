@@ -133,7 +133,8 @@ for proc_step in "${PRE_PROC_STEPS[@]}"; do
     umi)
       case_command="umi_tools"
       case_version="--version"
-      case_opts="extract --whitelist ${UMI_WHITELIST} ${UMI_EXTRACT_OPTS} --log2stderr"
+      case_opts="extract --whitelist ${UMI_WHITELIST} ${UMI_EXTRACT_OPTS}\
+ ${UMI_FILTER_OPTS} --log2stderr"
       if (( LOGGING )); then
 	case_log="2> ${cur_log_file}"
       else

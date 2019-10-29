@@ -22,9 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 LICENSE
 
 export PROGRAM='pipeline'
-export VERSION="v0.1.0"
+export VERSION="v0.2.0"
 export __dir="$(pwd)"
-export USELINE="$PROGRAM $VERSION (C) 2015-2019  A. Bulak Arpat"
+export USELINE="$PROGRAM $VERSION (C) 2015-2019  A. Bulak Arpat, René Dreos"
 read -r -d '' LICENSE <<'EOM'
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it
@@ -41,6 +41,7 @@ export META="\e[0m\e[37m[META]\e[0m"
 export SUB="\e[0m\e[35m[SUB]\e[0m"
 export MAPPER="\e[0m\e[34m[MAPPER]\e[0m"
 export SAM2BAM="\e[0m\e[36m[SAM2BAM]\e[0m"
+export WHITELIST="\e[0m\e[1m[WHITELIST]\e[0m"
 
 # default directory structure
 export RAW_DIR="raw_data"
