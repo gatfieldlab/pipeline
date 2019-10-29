@@ -53,7 +53,8 @@ setup(
             'concat_map_logs = pipeline.concat_map_logs:main',
             'consume = pipeline.consume:main',
             'filter_sam = pipeline.filter_sam:main',
-            'filterUmiFromSam = pipeline.filterUmiFromSam:main'
+            'filterUmiFromSam = pipeline.filterUmiFromSam:main',
+            'split_barcode = pipeline.split_barcode:main'
         ]},
     install_requires=[
         'cutadapt',
