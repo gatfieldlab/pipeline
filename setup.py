@@ -46,7 +46,9 @@ setup(
         'scripts/pipeline_common.sh',
         'scripts/subpipeline.sh',
         'scripts/pipeline_conf-riboprof.sh',
-        'scripts/pipeline_whitelist.sh'
+        'scripts/pipeline_conf-riboprof_umi.sh',
+        'scripts/pipeline_whitelist.sh',
+        'scripts/pipeline_setconf.sh'
     ],
     entry_points={
         'console_scripts': [
