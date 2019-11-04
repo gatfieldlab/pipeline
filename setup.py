@@ -4,38 +4,12 @@
 Pip setup for `pipeline' package
 """
 
-import os
-from subprocess import check_call
 from setuptools import setup, find_packages
-from setuptools.command.develop import develop
-from setuptools.command.install import install
-
-CURDIR = os.getcwd() # this gets the src directory of python package
-USERDIR = os.path.expanduser("~")
-
-class PostDevelopCommand(develop):
-    """Post-installation for development mode."""
-    def run(self):
-        config_script = os.path.join(self.script_dir,
-                                     "pipeline_conf-riboprof.sh")
-        develop.run(self)
-        check_call(["cp", config_script, USERDIR])
-
-
-class PostInstallCommand(install):
-    """Post-installation for installation mode."""
-    def run(self):
-        config_script = os.path.join(self.install_scripts,
-                                     "pipeline_conf-riboprof.sh")
-        install.run(self)
-        check_call(["cp", config_script, CURDIR])
-
 
 setup(
     name='pipeline',
-    version='0.1.0',
+    version='0.2.0',
     description='Tools for analysing HTSeq data',
-#   url='NA',
     author='Bulak Arpat, René Dreos',
     author_email='bulak.arpat@gmail.com',
     license='GPLv3',
@@ -63,8 +37,5 @@ setup(
         'xopen',
         'gatlab-tools-accessories==0.1.0'
     ],
-    cmdclass={
-        'develop': PostDevelopCommand,
-        'install': PostInstallCommand},
     zip_safe=False
 )
