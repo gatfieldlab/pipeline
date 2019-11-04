@@ -80,6 +80,17 @@ else
   errorlog["Have files"]="[ $(timestamp) ] OK - Found $i files in DB"
 fi
 
+# Locate whitelist if necessary
+# -----------------------------
+if [ ! -z "${UMI_WHITELIST}" ]; then
+  if [ -f "${UMI_WHITELIST}" ]; then
+    cp -n "${UMI_WHITELIST}" $2 2>/dev/null
+  else
+    logs ${SUB} $WARNING"<${BASE}> Could not find barcode whitelist\
+ file '${UMI_WHITELIST}. Mappers might termininate."
+  fi
+fi
+
 # Spawn MAPPER processes
 #-----------------------
 cd $2
