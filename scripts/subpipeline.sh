@@ -161,7 +161,7 @@ if (( $MAP_WITH_STAR )); then
     memory_mode="LoadAndKeep"
     [ ${filter_low[${TY}]+is_set} ] && seedSearchStartLmax="${filter_low[${TY}]}"
     [ ${STAR_GTF} ] && gtf_mode="--sjdbGTFfile ${STAR_GTF} --twopassMode Basic" && memory_mode="NoSharedMemory"
-    logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']}\
+    logs ${SUB} "<${BASE}> Mapping against ${STAR_INDEX['genome']}\
  genomic database using STAR..."
     logs ${SUB} "<${BASE}> Using seedSearchStartLmax value = ${seedSearchStartLmax}"
     logs ${SUB} "<${BASE}> GTF support params: '${gtf_mode}'"
