@@ -201,7 +201,7 @@ EOF
     eval ${star_cmd}
     cur_err=$?
     if (( $cur_err )); then
-      logs ${SUB} ${ERROR}"<${BASE}> Mapping against ${BOWTIE2X['genome']}\
+      logs ${SUB} ${ERROR}"<${BASE}> Mapping against ${STAR_INDEX['genome']}\
  genomic database with STAR failed."
       errorlog["STAR mapping"]="[ $(timestamp) ] ERROR - Mapping failed"
       if (( LOGGING )); then
@@ -209,7 +209,7 @@ EOF
 STAR mapping failed!" >>$starlogfile
       fi	  
     else
-      logs ${SUB} "<${BASE}> Mapping against ${BOWTIE2X['genome']} genomic\
+      logs ${SUB} "<${BASE}> Mapping against ${STAR_INDEX['genome']} genomic\
  database with STAR finished OK"
       echo STAR --genomeDir="${STAR_INDEX['genome']}" \
            --genomeLoad Remove > "${CLEANUP_HOOKS}"
