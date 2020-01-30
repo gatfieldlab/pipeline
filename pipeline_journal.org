@@ -53,3 +53,21 @@ These need to be done:
 5) Add helper scripts for i5/i7 splitting and whitelisting. (Can whitelisting be
 done within the pipeline?)
 
+* [2019-11-05 Tue 15:20]                                          :self_note:bug:
+
+STAR cleanup script tries to remove an unattached map after using STAR with GTF
+options and double-pass. These options suppress shared memory access loading of
+databases. After mapping is finished the clean-up hooks are called by
+default. This generates the following errror:
+
+EXITING: Did not find the genome in memory, did not remove any genomes from
+shared memory
+
+To fix this, the clean-up hooks should be generated/called/removed smartly!
+* [2019-11-07 Thu 09:31]                                              :self_note:
+
+⁻t performance split_barcode could use more than one queue for feeding the 
+parser/splitters. Each parser would be attached to a different queque, this way 
+large traffic on a single queue would be prevented and perhaps a larger number 
+of parsers could still improve the performance. 
+
