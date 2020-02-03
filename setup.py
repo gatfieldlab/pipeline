@@ -20,12 +20,12 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'make_sample_db = pipeline.make_sample_db:main',
-            'concat_map_logs = pipeline.concat_map_logs:main',
-            'consume = pipeline.consume:main',
-            'filter_sam = pipeline.filter_sam:main',
-            'filterUmiFromSam = pipeline.filterUmiFromSam:main',
-            'split_barcode = pipeline.split_barcode:main'
+            'make_sample_db = gatlab.pipeline.make_sample_db:main',
+            'concat_map_logs = gatlab.pipeline.concat_map_logs:main',
+            'consume = gatlab.pipeline.consume:main',
+            'filter_sam = gatlab.pipeline.filter_sam:main',
+            'filterUmiFromSam = gatlab.pipeline.filterUmiFromSam:main',
+            'split_barcode = gatlab.pipeline.split_barcode:main'
         ]},
     install_requires=[
         'xopen',
