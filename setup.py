@@ -1,19 +1,13 @@
-# -*- coding: utf-8 -*-
-
-"""
-Pip setup for `pipeline' package
-"""
-
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
-    name='pipeline',
+    name='gatlab-pipeline',
     version='0.3.0',
     description='Tools for analysing HTSeq data',
     author='Bulak Arpat, René Dreos',
     author_email='bulak.arpat@gmail.com',
     license='GPLv3',
-    packages=find_packages(),
+    packages=['gatlab.pipeline'],
     scripts=[
         'scripts/meta_pipeline.sh',
         'scripts/pipeline_bwt2_single.sh',
