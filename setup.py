@@ -29,7 +29,7 @@ setup(
         ]},
     install_requires=[
         'xopen',
-        'gatlab-tools-accessories==0.1.0'
+        'gatlab-tools-accessories==0.1.1'
     ],
     zip_safe=False
 )
