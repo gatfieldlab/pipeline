@@ -84,7 +84,7 @@ fi
 # -----------------------------
 if [ ! -z "${UMI_WHITELIST}" ]; then
   if [ -f "${UMI_WHITELIST}" ]; then
-    cp -n "${UMI_WHITELIST}" $2 2>/dev/null
+    cp "${UMI_WHITELIST}" $2 2>/dev/null
   else
     logs ${SUB} $WARNING"<${BASE}> Could not find barcode whitelist\
  file '${UMI_WHITELIST}. Mappers might termininate."
@@ -298,6 +298,8 @@ EOF
 	umi_input="${umi_path}/Aligned.sortedByCoord.out.bam"
 	umi_log="${umi_path}/umi_tools.log"
 	umi_out="${umi_path}/Aligned"
+	umi_out1="${umi_path}/Aligned"
+	umi_out2=""
 	filter_log="${umi_path}/filterUMI.log"
       else
 	umi_base="${LIBEXTS[${maptype}]}"
@@ -305,6 +307,8 @@ EOF
 	umi_input="sam/${umi_path}.sorted.bam"
 	umi_log="logs${SUFFIX}/${umi_path}.umi_tools.log"
 	umi_out="sam/${umi_path}"
+	umi_out1="sam/${BASE}"
+	umi_out2=".${umi_base}"
 	filter_log="logs${SUFFIX}/${umi_path}.filterUMI.log"
       fi
       if [ ! -f "${umi_input}" -o ! -f "${umi_input}.bai" ]; then
@@ -341,24 +345,24 @@ EOF
 	  what_todo+=("skipping dedup")
 	  umi_pipe=""
 	  umi_bam=""
-	  split_pipe="samtools view -h ${umi_input} | awk -v filebase=${umi_out} \
- '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  split_pipe="samtools view -h ${umi_input} | awk -v filebase1=${umi_out1} \
+ -v filebase2=${umi_out2} '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
      	  ;;
 	dedup)
 	  what_todo+=("deduplicating")
 	  umi_out="${umi_out}.dedup"
 	  umi_pipe="umi_tools dedup -I ${umi_input} ${cur_umi_opts} --log=${umi_log} "
 	  umi_bam="--stdout ${umi_out}.bam"
-	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
- '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	group)
 	  what_todo+=("grouping dedups")
 	  umi_out="${umi_out}.group"
 	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} --output-bam "
 	  umi_bam="--stdout ${umi_out}.bam"
-	  split_pipe="| samtools view -h - | awk -v filebase=${umi_out} \
- '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	filter)
 	  what_todo+=("filtering dedups")
@@ -366,9 +370,14 @@ EOF
 	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} \
  --output-bam | samtools view -h | filterUmiFromSam 2>${filter_log}"
 	  umi_bam="| samtools view -bS - > ${umi_out}.bam"
-	  split_pipe="| awk -v filebase=${umi_out} \
- '{split(\$1,barcode,\"_\"); print \$0 > filebase \"_split_\" barcode[2] \".sam\"}'"
+	  split_pipe="| awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
+ '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
+	###
+	# If needed we can define an extra command here that would very specifically
+	# create a split first pipe, regenerate input names for dedup, run dedup
+	# on each split with their log files. We also would need to modify the pipes
+	# so that each split
 	*)
 	  # anything else, including empty options raise error
 	  umi_pipe="SKIPPED due to improper DEDUP config"
