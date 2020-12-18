@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gatlab-pipeline',
-    version='0.3.0',
+    version='0.3.1',
     description='Tools for analysing HTSeq data',
     author='Bulak Arpat, René Dreos',
     author_email='bulak.arpat@gmail.com',

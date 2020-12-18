@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 LICENSE
 
 export PROGRAM='pipeline'
-export VERSION="v0.2.0"
+export VERSION="v0.3.1"
 export __dir="$(pwd)"
 export USELINE="$PROGRAM $VERSION (C) 2015-2019  A. Bulak Arpat, René Dreos"
 read -r -d '' LICENSE <<'EOM'
