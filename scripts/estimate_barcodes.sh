@@ -112,11 +112,16 @@ source ${config_file}
 [ ! -z ${UMI_WHITELIST} ] && whitelist_file="${UMI_WHITELIST}"
 [ ! -z ${whitelist_file_cli} ] && whitelist_file="${whitelist_file_cli}" 
 
-cat ${samples} | xargs -n 1 -P ${limit} -I SAMPLE bash -c \
-  'echo "Processing SAMPLE ..."; '\
-  'seqpipe -max-seq ${num_seq} ${raw_dir}/SAMPLE*.fastq.gz | pipeline_whitelist.sh '\
-  '--config-file ${config_file} --file-name SAMPLE_${whitelist_file} '\
-  '--log-file SAMPLE_${log_file} '\
-  '&& echo "Finished processing INFILE"'
+export raw_dir
+export config_file
+export whitelist_file
+export log_file
+export num_seq
+
+cat ${samples} | xargs -n 1 -P ${limit} -I SAMPLE\
+ bash -c "echo 'Processing SAMPLE ...' && "\
+"seqpipe --max-seq ${num_seq} ${raw_dir}/SAMPLE*.fastq.gz | pipeline_whitelist.sh "\
+"--config-file ${config_file} --file-name SAMPLE_${whitelist_file} "\
+"--log-file SAMPLE_${log_file} && echo 'Finished processing SAMPLE'"
 echo "barcode estimation is finished."
 exit 0

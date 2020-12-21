@@ -27,7 +27,8 @@ def main():
     Merges gzipped fastq files reading one read from each at a time
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("files", help="gzipped fastq files to process")
+    parser.add_argument("files", help="gzipped fastq files to process",
+                        nargs="+")
     parser.add_argument("--max-seq", help="max number of sequences to merge",
                         type=int, default=DEF_CUTOFF)
     args = parser.parse_args()
