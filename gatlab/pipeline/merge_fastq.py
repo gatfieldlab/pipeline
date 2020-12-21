@@ -19,18 +19,19 @@ __email__ = "Bulak.Arpat@unil.ch"
 __status__ = "Development"
 
 VERSION = __version__
-DEF_CUTOFF = 10000
+DEF_CUTOFF = 0
 
 
 def main():
     """
-    Merges gzipped fastq files reading one read from each at a time
+    Merges gzipped fastq files reading one sequence from each at a time
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("files", help="gzipped fastq files to process",
                         nargs="+")
-    parser.add_argument("--max-seq", help="max number of sequences to merge",
-                        type=int, default=DEF_CUTOFF)
+    parser.add_argument(
+        "--max-seq", help="max number of sequences to merge, 0 implies no limit",
+        type=int, default=DEF_CUTOFF)
     args = parser.parse_args()
     handlers = [gzip.open(seqfile, 'rt') for seqfile in args.files]
     iterators = [itertools.zip_longest(*[handle]*4) for handle in handlers]
@@ -48,9 +49,6 @@ def main():
         for di in ditch_list[::-1]:
             iterators.pop(di)
             handlers.pop(di).close()
-        if count >= args.max_seq:
+        if args.max_seq and count >= args.max_seq:
             break
     print("Total =", count, file=sys.stderr)
-
-if __name__ == "__main__":
-    sys.exit(main())

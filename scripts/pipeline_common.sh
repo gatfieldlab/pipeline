@@ -22,9 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 LICENSE
 
 export PROGRAM='pipeline'
-export VERSION="v0.3.1"
+export VERSION="v0.3.2"
 export __dir="$(pwd)"
-export USELINE="$PROGRAM $VERSION (C) 2015-2019  A. Bulak Arpat, René Dreos"
+export USELINE="$PROGRAM $VERSION (C) 2015-2020  A. Bulak Arpat, René Dreos"
 read -r -d '' LICENSE <<'EOM'
 This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it

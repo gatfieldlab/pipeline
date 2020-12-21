@@ -37,7 +37,8 @@ Usage: $0 [options] SAMPLE_FILE
 		     for whitelisting from each sample. If
 		     there are multiple files for a sample
 		     they will be merged read-by-read upto
-		     this number. Default is 10 million.
+		     this number. 0 implies no limit.
+                     Default is 10 million.
 -n|--concurrent      number of samples that will be
                      processed concurrently. default 4
 -c|--config-file     configuration file to use. default
@@ -131,7 +132,7 @@ export out_dir
 
 cat ${samples} | xargs -n 1 -P ${limit} -I SAMPLE\
  bash -c "echo 'Processing SAMPLE ...' && "\
-"seqpipe --max-seq ${num_seq} ${raw_dir}/SAMPLE*.fastq.gz | pipeline_whitelist.sh "\
+"merge_fastq --max-seq ${num_seq} ${raw_dir}/SAMPLE*.fastq.gz | pipeline_whitelist.sh "\
 "--config-file ${config_file} --file-name SAMPLE_${whitelist_file} "\
 "--log-file SAMPLE_${log_file} ${out_dir} && echo 'Finished processing SAMPLE'"
 echo "barcode estimation is finished."

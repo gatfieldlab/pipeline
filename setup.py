@@ -27,7 +27,7 @@ setup(
             'filter_sam = gatlab.pipeline.filter_sam:main',
             'filterUmiFromSam = gatlab.pipeline.filterUmiFromSam:main',
             'split_barcode = gatlab.pipeline.split_barcode:main',
-            'seqpipe = gatlab.pipeline.seqpipe:main'
+            'merge_fastq = gatlab.pipeline.merge_fastq:main'
         ]},
     install_requires=[
         'xopen',
