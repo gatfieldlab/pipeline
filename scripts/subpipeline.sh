@@ -83,8 +83,10 @@ fi
 # Locate whitelist if necessary
 # -----------------------------
 if [ ! -z "${UMI_WHITELIST}" ]; then
-  if [ -f "${UMI_WHITELIST}" ]; then
-    cp "${UMI_WHITELIST}" $2 2>/dev/null
+  if [ -f "${DIR_NAME['umi']}/${BASE}_${UMI_WHITELIST}" ]; then
+    export SUB_WHITELIST="${DIR_NAME['umi']}/${BASE}_${UMI_WHITELIST}"
+  elif [ -f "${DIR_NAME['umi']}/${UMI_WHITELIST}" ]; then
+    export SUB_WHITELIST="${DIR_NAME['umi']}/${UMI_WHITELIST}"
   else
     logs ${SUB} $WARNING"<${BASE}> Could not find barcode whitelist\
  file '${UMI_WHITELIST}. Mappers might termininate."

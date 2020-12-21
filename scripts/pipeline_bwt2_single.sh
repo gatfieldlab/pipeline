@@ -133,7 +133,7 @@ for proc_step in "${PRE_PROC_STEPS[@]}"; do
     umi)
       case_command="umi_tools"
       case_version="--version"
-      case_opts="extract --whitelist ${UMI_WHITELIST} ${UMI_EXTRACT_OPTS}\
+      case_opts="extract --whitelist ../${SUB_WHITELIST} ${UMI_EXTRACT_OPTS}\
  ${UMI_FILTER_OPTS} --log2stderr"
       if (( LOGGING )); then
 	case_log="2> ${cur_log_file}"
@@ -203,7 +203,7 @@ cutadapt params: ${CUTADAPT_OPTS}
 size filter low: ${filter_low[$TY]}
 size filter high: ${filter_high[$TY]}
 fastq_quality_filter params: ${FASTQ_QUALITY_FILTER_OPT}
-umi_tools whitelist: ${UMI_WHITELIST}
+umi_tools whitelist: ../${SUB_WHITELIST}
 umi_tools params: ${UMI_EXTRACT_OPTS}
 
   -- Mapping --

@@ -35,17 +35,21 @@ while [[ $# > 1 ]]; do
 
   case $key in
     -c|--config-file)
-    config_file="$2"
-    shift
-    ;;
+      config_file="$2"
+      shift
+      ;;
     -l|--log-file)
-    log_file="$2"
-    shift
-    ;;
+      log_file="$2"
+      shift
+      ;;
     -f|--file-name)
-    whitelist_file_cli="$2"
-    shift
-    ;;
+      whitelist_file_cli="$2"
+      shift
+      ;;
+    -o|--out-dir)
+      out_dir_cli="$2"
+      shift
+      ;;
     *)
     # unknown option
     logs ${META} ${WARNING}"Skipping unknown parameter $key"
@@ -58,6 +62,9 @@ source ${config_file}
 
 [ ! -z ${UMI_WHITELIST} ] && whitelist_file="${UMI_WHITELIST}"
 [ ! -z ${whitelist_file_cli} ] && whitelist_file="${whitelist_file_cli}"
+[ ! -z ${DIR_NAME["umi"]} ] && out_dir="${DIR_NAME["umi"]}"
+[ ! -z ${out_dir_cli} ] && out_dir="${out_dir_cli}"
+log_file=${out_dir}/${log_file}
 
 if command -v cutadapt >/dev/null 2>&1; then
   cut_ver=$(cutadapt --version 2>&1)
@@ -74,7 +81,8 @@ else
 fi
 
 pipe="cutadapt -a ${ADAPTER} ${CUTADAPT_OPTS} --quiet - |\
- umi_tools whitelist ${UMI_EXTRACT_OPTS} --log2stderr 2>>${log_file} 1>${whitelist_file}"
+ umi_tools whitelist ${UMI_EXTRACT_OPTS} --log2stderr\
+ 2>>${log_file} 1>${out_dir}/${whitelist_file}"
 
 cat >${log_file} <<EOF
 ==== Logfile for WHITELIST ====

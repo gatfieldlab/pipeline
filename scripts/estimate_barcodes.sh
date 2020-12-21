@@ -53,6 +53,9 @@ Usage: $0 [options] SAMPLE_FILE
 -r|--raw-dir	     path to directory where raw sequence
 		     files are located. If not given, it will
 		     be read from main config (preferred).
+		     Currently, it is '${RAW_DIR}'
+-o|--out-dir	     output dir. If not given read from
+		     main config (preferred).
 
 ${LICENSE}
 
@@ -71,6 +74,10 @@ while [[ $# > 1 ]]; do
   key="$1"
 
   case $key in
+    -o|--out-dir)
+      out_dir_cli="$2"
+      shift
+      ;;
     -s|--seq)
       num_seq="$2"
       shift
@@ -111,17 +118,21 @@ source ${config_file}
 
 [ ! -z ${UMI_WHITELIST} ] && whitelist_file="${UMI_WHITELIST}"
 [ ! -z ${whitelist_file_cli} ] && whitelist_file="${whitelist_file_cli}" 
+[ ! -z ${DIR_NAME["umi"]} ] && out_dir="${DIR_NAME["umi"]}"
+[ ! -z ${out_dir_cli} ] && out_dir="${out_dir_cli}"
+[ ! -z ${out_dir} ] && outdir="--out-dir ${out_dir}"
 
 export raw_dir
 export config_file
 export whitelist_file
 export log_file
 export num_seq
+export out_dir
 
 cat ${samples} | xargs -n 1 -P ${limit} -I SAMPLE\
  bash -c "echo 'Processing SAMPLE ...' && "\
 "seqpipe --max-seq ${num_seq} ${raw_dir}/SAMPLE*.fastq.gz | pipeline_whitelist.sh "\
 "--config-file ${config_file} --file-name SAMPLE_${whitelist_file} "\
-"--log-file SAMPLE_${log_file} && echo 'Finished processing SAMPLE'"
+"--log-file SAMPLE_${log_file} ${out_dir} && echo 'Finished processing SAMPLE'"
 echo "barcode estimation is finished."
 exit 0
