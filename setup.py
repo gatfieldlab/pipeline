@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gatlab-pipeline',
-    version='0.3.1',
+    version='0.3.2',
     description='Tools for analysing HTSeq data',
     author='Bulak Arpat, René Dreos',
     author_email='bulak.arpat@gmail.com',
@@ -16,7 +16,8 @@ setup(
         'scripts/pipeline_conf-riboprof.sh',
         'scripts/pipeline_conf-riboprof_umi.sh',
         'scripts/pipeline_whitelist.sh',
-        'scripts/pipeline_setconf.sh'
+        'scripts/pipeline_setconf.sh',
+        'scripts/estimate_barcodes.sh'
     ],
     entry_points={
         'console_scripts': [
@@ -25,7 +26,8 @@ setup(
             'consume = gatlab.pipeline.consume:main',
             'filter_sam = gatlab.pipeline.filter_sam:main',
             'filterUmiFromSam = gatlab.pipeline.filterUmiFromSam:main',
-            'split_barcode = gatlab.pipeline.split_barcode:main'
+            'split_barcode = gatlab.pipeline.split_barcode:main',
+            'seqpipe = gatlab.pipeline.seqpipe:main'
         ]},
     install_requires=[
         'xopen',
