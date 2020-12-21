@@ -17,7 +17,7 @@ setup(
         'scripts/pipeline_conf-riboprof_umi.sh',
         'scripts/pipeline_whitelist.sh',
         'scripts/pipeline_setconf.sh',
-        'scripts/estimate_barcodes.sh'
+        'scripts/pipeline_get_barcodes.sh'
     ],
     entry_points={
         'console_scripts': [
