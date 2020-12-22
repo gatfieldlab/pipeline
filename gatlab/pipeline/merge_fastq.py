@@ -13,7 +13,7 @@ import argparse
 __author__ = "Bulak Arpat"
 __copyright__ = "Copyright 2020, Bulak Arpat"
 __license__ = "GPLv3"
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __maintainer__ = "Bulak Arpat"
 __email__ = "Bulak.Arpat@unil.ch"
 __status__ = "Development"
@@ -35,7 +35,8 @@ def main():
     args = parser.parse_args()
     handlers = [gzip.open(seqfile, 'rt') for seqfile in args.files]
     iterators = [itertools.zip_longest(*[handle]*4) for handle in handlers]
-    print(handlers, file=sys.stderr)
+    print("[merge_fastq]", [handle.name for handle in handlers],
+          "are opened to be merged.", file=sys.stderr)
     count = 0
     while iterators:
         ditch_list = []
@@ -45,10 +46,18 @@ def main():
                 count += 1
             except StopIteration:
                 ditch_list.append(i)
-                print("appended to ditchlist:", ditch_list)
+            except BrokenPipeError:
+                print("[merge_fastq] Broken pipe detected - processing stopped",
+                      file=sys.stderr)
+                break
         for di in ditch_list[::-1]:
             iterators.pop(di)
-            handlers.pop(di).close()
+            handle = handlers.pop(di)
+            print("[merge_fastq]", handle.name, "finished, closing",
+                  file=sys.stderr)
+            handle.close()
         if args.max_seq and count >= args.max_seq:
             break
-    print("Total =", count, file=sys.stderr)
+    for handle in handlers:
+        handle.close()
+    print("[merge_fastq]", args.files, "Total =", count, file=sys.stderr)
