@@ -353,26 +353,29 @@ EOF
 	dedup)
 	  what_todo+=("deduplicating")
 	  umi_out="${umi_out}.dedup"
+	  umi_out1="${umi_out1}.dedup"
 	  umi_pipe="umi_tools dedup -I ${umi_input} ${cur_umi_opts} --log=${umi_log} "
 	  umi_bam="--stdout ${umi_out}.bam"
-	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1}.dedup -v filebase2=${umi_out2} \
+	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	group)
 	  what_todo+=("grouping dedups")
 	  umi_out="${umi_out}.group"
+	  umi_out1="${umi_out1}.group"
 	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} --output-bam "
 	  umi_bam="--stdout ${umi_out}.bam"
-	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1}.group -v filebase2=${umi_out2} \
+	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	filter)
 	  what_todo+=("filtering dedups")
 	  umi_out="${umi_out}.filter"
+	  umi_out1="${umi_out1}.filter"
 	  umi_pipe="umi_tools group -I ${umi_input} ${cur_umi_opts} --log=${umi_log} \
  --output-bam | samtools view -h | filterUmiFromSam 2>${filter_log}"
 	  umi_bam="| samtools view -bS - > ${umi_out}.bam"
-	  split_pipe="| awk -v filebase1=${umi_out1}.filter -v filebase2=${umi_out2} \
+	  split_pipe="| awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	###
