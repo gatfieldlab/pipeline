@@ -433,8 +433,8 @@ UMI deduplication failed!" >>$deduplogfile
 	  logs ${SUB} "<${BASE}> ${doing^} finished for '${umi_base}'"
 	  if (( $cell_split )); then
 	    logs ${SUB} "<${BASE}> Converting split SAMs to BAMs for '${umi_base}'"
-	    umi_out_path="${umi_out%/*}"
-	    umi_out_file="${umi_out##*/}_split_"
+	    umi_out_path="${umi_out1%/*}"
+	    umi_out_file="${umi_out1##*/}_split_"
 	    find ${umi_out_path} -type f -name "${umi_out_file}?*.sam" | \
 	      xargs -i bash -c \
 		    'cat "${1%_*}_.sam" {} | samtools view -bS - > "${1%.sam}.bam"' - '{}'
