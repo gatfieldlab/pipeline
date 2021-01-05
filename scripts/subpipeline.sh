@@ -345,6 +345,8 @@ EOF
       case "${umi_type}" in
 	skip)
 	  what_todo+=("skipping dedup")
+	  umi_out="${umi_out}.nodedup"
+	  umi_out1="${umi_out1}.nodedup"
 	  umi_pipe=""
 	  umi_bam=""
 	  split_pipe="samtools view -h ${umi_input} | awk -v filebase1=${umi_out1} \
