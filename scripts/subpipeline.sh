@@ -440,7 +440,7 @@ UMI deduplication failed!" >>$deduplogfile
 	    umi_out_file="${umi_out1##*/}_split_"
 	    find ${umi_out_path} -type f -name "${umi_out_file}?*${umi_base}.sam" | \
 	      xargs -i bash -c \
-		    'a="${1%.*.*}"; b="${1#*.*.}"; c="${a%_*}_.${b}"; [ "${c}" != {} ] && cat "${c} {}" | samtools view -bS - > "${1%.sam}.sorted.bam"' - '{}'
+		    'a="${1%.*.*}"; b="${1#*.*.}"; c="${a%_*}_.${b}"; [ "${c}" != {} ] && cat "${c}" "{}" | samtools view -bS - > "${1%.sam}.sorted.bam"' - '{}'
 	    cur_err=$?
 	    if (( $cur_err )); then
 	      logs ${SUB} ${ERROR}"<$BASE> BAM conversion failed for '${umi_base}'!"
