@@ -358,7 +358,7 @@ EOF
 	  umi_out1="${umi_out1}.dedup"
 	  umi_pipe="umi_tools dedup -I ${umi_input} ${cur_umi_opts} --log=${umi_log} "
 	  umi_bam="--stdout ${umi_out}.bam"
-	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=${umi_out2} \
+	  split_pipe="| samtools view -h - | awk -v filebase1=${umi_out1} -v filebase2=\"${umi_out2}\" \
  '{split(\$1,barcode,\"_\"); print \$0 > filebase1 \"_split_\" barcode[2] filebase2 \".sam\"}'"
 	  ;;
 	group)
