@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='gatlab-pipeline',
-    version='0.3.2',
+    version='0.3.3',
     description='Tools for analysing HTSeq data',
     author='Bulak Arpat, René Dreos',
     author_email='bulak.arpat@gmail.com',
@@ -27,7 +27,8 @@ setup(
             'filter_sam = gatlab.pipeline.filter_sam:main',
             'filterUmiFromSam = gatlab.pipeline.filterUmiFromSam:main',
             'split_barcode = gatlab.pipeline.split_barcode:main',
-            'merge_fastq = gatlab.pipeline.merge_fastq:main'
+            'merge_fastq = gatlab.pipeline.merge_fastq:main',
+            'seqpipe = gatlab.pipeline.seqpipe:main'
         ]},
     install_requires=[
         'xopen',
