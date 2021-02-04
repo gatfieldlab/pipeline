@@ -13,7 +13,7 @@ import sys
 __author__ = "Bulak Arpat"
 __copyright__ = "Copyright 2015-2019, Bulak Arpat"
 __license__ = "GPLv3"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __maintainer__ = "Bulak Arpat"
 __email__ = "Bulak.Arpat@unil.ch"
 __status__ = "Development"
@@ -22,18 +22,19 @@ READS_REGEX = re.compile(r'^(\d+) reads')
 ALIGN_REGEX = re.compile(r'(\d+) .+ aligned (.+)$')
 
 
-def get_bw_logfiles(log_path, base_name, extension="bw2.log"):
+def get_bw_logfiles(log_paths, base_name, extension="bw2.log"):
     """
     Helper function to locate bowtie2 log files in a path
     """
     file_regex = re.compile('^{}\.(.+)\.{}'.format(base_name, extension))
-    file_list = os.listdir(log_path)
     log_files = []
-    for file in file_list:
-        file_match = file_regex.match(file)
-        if file_match:
-            log_type = file_match.group(1)
-            log_files.append((log_type, os.path.join(log_path, file)))
+    for log_path in log_paths:
+        file_list = os.listdir(log_path)
+        for file in file_list:
+            file_match = file_regex.match(file)
+            if file_match:
+                log_type = file_match.group(1)
+                log_files.append((log_type, os.path.join(log_path, file)))
     return log_files
 
 
@@ -72,13 +73,17 @@ def main():
     Reads the arguments from the CLI, locates the log files and
     concatanates the logs from split files into a single one
     """
-    log_path = sys.argv[2]
-    star_log_path = sys.argv[3]
+    if len(sys.argv) < 3:
+        print("Usage: concat_map_logs SAMPLE_FILE BOWTIE_LOGDIR [BOWTIE_LOGDIR ...]"
+              " STAR_LOGDIR", file=sys.stderr)
+        return 1
+    log_paths = sys.argv[2:-1]
+    star_log_path = sys.argv[-1]
     with open(sys.argv[1]) as samples:
         for sample in samples:
             sample = sample.strip()
             star_log = get_star_log(star_log_path, sample)
-            log_files = get_bw_logfiles(log_path, sample)
+            log_files = get_bw_logfiles(log_paths, sample)
             for log_type, log_file in log_files:
                 align_stat = {}
                 with open(log_file) as open_file:
@@ -93,7 +98,7 @@ def main():
                     keys = ['total_aligned']
                     for t in keys:
                         print("\t".join([sample, log_type, t, align_stat[t]]))
-                    if log_type == 'mouse_cDNA':
+                    if "cDNA" in log_type:
                         assert int(align_stat['0 times']) == star_log[0]
             print("\t".join([sample, "genomic", "total_aligned", str(star_log[1])]))
             print("\t".join([sample, "unmapped", "total_aligned", str(star_log[2])]))
